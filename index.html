@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cooing</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:          #8fa8e0;
+    --outer-card:  #a8bde8;
+    --white:       #ffffff;
+    --panel:       #f0f4ff;
+    --panel2:      #e8edff;
+    --blue-soft:   #7b9dd4;
+    --blue-med:    #6b8ecb;
+    --blue-accent: #5a7ec0;
+    --blue-tag:    #7b9dd4;
+    --text:        #4a5a80;
+    --text-light:  #7a8aaa;
+    --text-dark:   #3a4a6a;
+    --border:      #c8d4ee;
+    --shadow:      rgba(100,120,180,0.15);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'Nunito', 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: safe center;
+    justify-content: center;
+    padding: 24px 12px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
+  .outer-frame-wrap {
+    width: 100%;
+    max-width: 680px;
+  }
+
+  .outer-frame {
+    background: var(--outer-card);
+    border-radius: 28px;
+    padding: 20px;
+    width: 100%;
+    box-shadow: 0 8px 40px rgba(60,80,160,0.18);
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  .browser {
+    background: var(--white);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px var(--shadow);
+    border: 1.5px solid rgba(255,255,255,0.7);
+  }
+
+  .tabs-bar {
+    background: var(--panel);
+    display: flex;
+    border-bottom: 1.5px solid var(--border);
+    padding: 0 6px;
+    gap: 2px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs-bar::-webkit-scrollbar { display: none; }
+
+  .tab {
+    padding: 9px 12px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+    white-space: nowrap;
+    margin-top: 6px;
+    border: 1.5px solid transparent;
+    border-bottom: none;
+    position: relative;
+    bottom: -1.5px;
+    user-select: none;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,0.6); }
+  .tab.active {
+    background: var(--white);
+    color: var(--text-dark);
+    border-color: var(--border);
+    font-weight: 700;
+  }
+
+  .addr-bar {
+    background: var(--panel);
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .nav-btns { display: flex; gap: 4px; align-items: center; }
+  .nav-btn {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 11px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav-btn:hover { background: var(--panel2); color: var(--text); }
+  @media (max-width: 480px) { .nav-btn.hide-mobile { display: none; } }
+
+  .addr-input {
+    flex: 1;
+    min-width: 0;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 99px;
+    padding: 5px 12px;
+    font-size: 11px;
+    color: var(--text-light);
+    font-family: 'Nunito', sans-serif;
+    outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .content {
+    background: var(--white);
+    padding: 20px 18px 18px;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    grid-template-rows: auto auto;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .avatar-col {
+    grid-row: 1; grid-column: 1;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+  }
+  .avatar-frame {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    background: linear-gradient(135deg, #dce8ff 0%, #c8d8f8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px;
+    overflow: hidden;
+    box-shadow: 0 3px 14px var(--shadow);
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+  .avatar-frame:hover { transform: scale(1.04) rotate(-2deg); }
+  .avatar-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .about-col {
+    grid-row: 1; grid-column: 2;
+    display: flex; flex-direction: column; gap: 8px; padding-top: 2px;
+  }
+  .about-title { font-size: 15px; font-weight: 700; color: var(--text-dark); letter-spacing: -0.3px; }
+  .about-body  { font-size: 12px; color: var(--text-light); line-height: 1.75; }
+  .about-tags  { font-size: 11px; color: var(--blue-accent); font-weight: 600; }
+  .about-tags span { margin: 0 3px; opacity: 0.5; }
+
+  .btn-commission {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 99px;
+    padding: 7px 14px;
+    font-size: 12px; font-weight: 600;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    transition: all 0.18s;
+    margin-top: 2px;
+    width: fit-content;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-commission:hover, .btn-commission:active {
+    background: var(--panel); border-color: var(--blue-accent); color: var(--blue-accent);
+  }
+
+  .side-col {
+    grid-row: 2; grid-column: 1 / 3;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .thoughts-box {
+    background: var(--blue-tag);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px var(--shadow);
+  }
+  .thoughts-header {
+    background: var(--blue-accent);
+    padding: 7px 14px;
+    font-size: 12px; font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.2px;
+  }
+  .thoughts-list {
+    background: var(--white);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .thought-item {
+    padding: 10px 14px;
+    font-size: 12px; color: var(--text);
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    transition: background 0.12s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .thought-item:nth-child(2n)          { border-right: none; }
+  .thought-item:nth-last-child(-n+2)   { border-bottom: none; }
+  .thought-item:last-child:nth-child(odd) { grid-column: 1 / 3; border-right: none; }
+  .thought-item:hover, .thought-item:active { background: var(--panel); color: var(--blue-accent); }
+
+  .social-icons-row {
+    display: flex; gap: 8px;
+    padding: 0 2px;
+    flex-wrap: wrap;
+  }
+  .soc {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--blue-soft);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .soc:hover, .soc:active { color: var(--blue-accent); }
+  .soc svg { width: 18px; height: 18px; fill: currentColor; }
+
+  @media (min-width: 560px) {
+    .content {
+      grid-template-columns: 120px 1fr 158px;
+      grid-template-rows: auto;
+    }
+    .avatar-col { grid-row: 1; grid-column: 1; }
+    .about-col  { grid-row: 1; grid-column: 2; }
+    .side-col   { grid-row: 1; grid-column: 3; }
+    .thoughts-list { display: flex; flex-direction: column; }
+    .thought-item  { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+    .thought-item:last-child { border-bottom: none !important; grid-column: unset; }
+  }
+
+  .gallery-panel { background: var(--white); padding: 18px; min-height: 260px; }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .gallery-item {
+    border-radius: 10px; overflow: hidden;
+    border: 1.5px solid var(--border);
+    aspect-ratio: 1;
+    background: var(--panel);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .gallery-item:active { transform: scale(0.97); }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gallery-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 6px;
+    color: var(--text-light); font-size: 11px; text-align: center; padding: 8px;
+  }
+  .gallery-placeholder .icon { font-size: 28px; opacity: 0.5; }
+  .gallery-empty {
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px;
+    min-height: 200px; color: var(--text-light); font-size: 13px; text-align: center;
+  }
+
+  .lightbox {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(30,40,80,0.85);
+    z-index: 3000;
+    align-items: center; justify-content: center;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  }
+  .lightbox.open { display: flex; }
+  .lightbox-img {
+    max-width: 90vw; max-height: 85dvh;
+    border-radius: 12px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.4);
+    object-fit: contain;
+  }
+  .lightbox-close {
+    position: fixed;
+    top: max(16px, env(safe-area-inset-top)); right: 20px;
+    font-size: 28px; color: #fff;
+    cursor: pointer; line-height: 1;
+    opacity: 0.85; padding: 8px;
+    z-index: 3001;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lightbox-close:active { opacity: 1; }
+
+  .schedule-panel { background: var(--white); padding: 18px; min-height: 260px; }
+  .months-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+    margin-top: 10px;
+  }
+  .month-card { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .month-header {
+    background: var(--panel2); padding: 6px 8px;
+    font-weight: 700; color: var(--text-dark); font-size: 11px;
+    display: flex; align-items: center; justify-content: space-between; gap: 4px;
+  }
+  .month-status {
+    font-size: 9px; font-weight: 700;
+    padding: 2px 5px; border-radius: 99px; white-space: nowrap;
+  }
+  .month-status.open  { background: #d4f4e2; color: #2a8a5a; }
+  .month-status.close { background: #fce8e8; color: #c04040; }
+  .month-body { padding: 5px 8px 7px; color: var(--text-light); font-size: 10px; line-height: 1.6; min-height: 32px; }
+  @media (max-width: 360px) { .months-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .notice-panel { background: var(--white); padding: 18px; min-height: 260px; }
+  .notice-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .notice-item {
+    border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; cursor: pointer; transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .notice-item:active { background: var(--panel); }
+  .notice-item-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .notice-title { font-size: 13px; font-weight: 700; color: var(--text-dark); line-height: 1.4; }
+  .notice-date  { font-size: 11px; color: var(--text-light); flex-shrink: 0; margin-top: 2px; }
+  .notice-arrow { font-size: 11px; color: var(--text-light); transition: transform 0.2s; flex-shrink: 0; margin-top: 3px; }
+  .notice-item.expanded .notice-arrow { transform: rotate(180deg); }
+  .notice-body {
+    font-size: 12px; color: var(--text-light);
+    line-height: 1.7; margin-top: 8px; white-space: pre-line; display: none;
+  }
+  .notice-body.open { display: block; }
+
+  .panel-heading {
+    font-size: 13px; font-weight: 700; color: var(--blue-accent);
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid var(--border);
+    margin-bottom: 2px;
+  }
+
+  .browser-footer {
+    background: var(--panel); border-top: 1.5px solid var(--border);
+    padding: 7px 0; text-align: center;
+    font-size: 11px; color: var(--text-light); letter-spacing: 0.3px;
+  }
+
+  .page-header { position: relative; text-align: center; margin-bottom: 16px; }
+  .page-bookmark {
+    position: absolute; left: 22px; top: -6px;
+    width: 22px; height: 34px;
+    background: #5a7ec0; border-radius: 0 0 5px 5px;
+    clip-path: polygon(0 0,100% 0,100% 78%,50% 100%,0 78%);
+  }
+
+  .lang-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+  .lang-btn {
+    background: var(--white); border: 1.5px solid rgba(255,255,255,0.7);
+    border-radius: 99px; padding: 6px 16px;
+    font-size: 13px; font-weight: 600;
+    font-family: 'Nunito', 'Noto Sans KR', sans-serif;
+    color: var(--text); cursor: pointer; transition: all 0.18s;
+    box-shadow: 0 2px 8px rgba(80,100,180,0.12);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lang-btn.active { background: var(--blue-accent); color: #fff; border-color: var(--blue-accent); }
+
+  .email-popup {
+    display: none; position: fixed; inset: 0;
+    background: rgba(30,40,80,0.45);
+    z-index: 998; align-items: center; justify-content: center; padding: 20px;
+  }
+  .email-popup.open { display: flex; }
+  .email-popup-box {
+    background: var(--white); border-radius: 16px; padding: 28px 32px;
+    box-shadow: 0 12px 40px rgba(60,80,160,0.22);
+    text-align: center; max-width: 320px; width: 90%;
+  }
+  .email-popup-icon  { font-size: 36px; margin-bottom: 10px; }
+  .email-popup-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; }
+  .email-popup-addr  { font-size: 15px; font-weight: 700; color: var(--blue-accent); margin-bottom: 16px; word-break: break-all; }
+  .email-popup-close {
+    background: var(--panel); border: 1.5px solid var(--border);
+    border-radius: 99px; padding: 8px 20px;
+    font-size: 12px; font-weight: 600; color: var(--text);
+    cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .email-popup-close:active { background: var(--panel2); color: var(--blue-accent); }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.94) translateY(16px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .neonova-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(60,80,160,0.45);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    z-index: 2000;
+    justify-content: center; align-items: flex-end;
+    animation: fadeIn 0.2s ease;
+  }
+  .neonova-overlay.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .neonova-window {
+    background: var(--white);
+    width: 100%; max-width: 860px;
+    max-height: 92dvh;
+    border-radius: 24px 24px 0 0;
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 -8px 40px rgba(60,80,160,0.22);
+    border: 2px solid var(--border); border-bottom: none;
+    animation: slideUp 0.3s cubic-bezier(.34,1.4,.64,1) both;
+  }
+  @media (min-width: 600px) {
+    .neonova-overlay { align-items: center; padding: 20px; }
+    .neonova-window  {
+      border-radius: 24px; border-bottom: 2px solid var(--border);
+      max-height: 90vh;
+    }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .neonova-handle {
+    width: 40px; height: 4px; background: var(--border);
+    border-radius: 99px; margin: 10px auto 0; flex-shrink: 0;
+  }
+  @media (min-width: 600px) { .neonova-handle { display: none; } }
+
+  .neonova-chrome {
+    background: var(--panel); border-bottom: 2px solid var(--border);
+    padding: 10px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  }
+  .neonova-dots { display: flex; gap: 6px; }
+  .neonova-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .neonova-dot.red    { background: #ff6b81; cursor: pointer; }
+  .neonova-dot.yellow { background: #ffd166; }
+  .neonova-dot.green  { background: #6bcb77; }
+  .neonova-dot.red:hover { background: #ff4757; }
+  .neonova-addr {
+    flex: 1; background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 99px; padding: 4px 14px;
+    font-size: 12px; color: var(--text-light);
+    font-family: 'Nunito', sans-serif; text-align: center;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .neonova-body { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+  .neonova-body::-webkit-scrollbar { width: 6px; }
+  .neonova-body::-webkit-scrollbar-track { background: var(--panel); border-radius: 10px; }
+  .neonova-body::-webkit-scrollbar-thumb { background: var(--blue-soft); border-radius: 10px; }
+
+  .neo-header {
+    text-align: center; padding: 30px 20px 22px;
+    background: linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%);
+    border-bottom: 3px solid var(--border);
+  }
+  .neo-header h1 {
+    color: var(--blue-accent); font-size: clamp(1.3rem,5vw,2rem);
+    margin-bottom: 8px; letter-spacing: 2px;
+    font-family: 'Nunito', sans-serif; font-weight: 800;
+  }
+  .neo-header p { color: var(--text-light); font-size: 13px; }
+  .neo-inner { padding: 22px 18px 32px; }
+  @media (min-width: 480px) { .neo-inner { padding: 28px 28px 36px; } }
+
+  .neo-detail-header { margin-bottom: 18px; text-align: center; }
+  .neo-detail-header h2 {
+    color: var(--blue-accent); font-size: clamp(1.1rem,4vw,1.5rem);
+    margin-bottom: 12px; font-family: 'Nunito', sans-serif;
+  }
+  .neo-tag-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .neo-tag { background: var(--panel2); color: var(--blue-accent); padding: 5px 13px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; }
+  .neo-feature-list { padding-top: 8px; }
+  .neo-feature-list h3 {
+    color: var(--text); margin-bottom: 12px;
+    border-bottom: 2px solid var(--panel); padding-bottom: 6px;
+    margin-top: 26px; font-size: 1rem; font-family: 'Nunito', sans-serif;
+  }
+  .neo-feature-list ul { list-style: none; margin-bottom: 12px; padding-left: 8px; }
+  .neo-feature-list li { padding: 5px 0; color: var(--text); line-height: 1.65; font-size: 0.9rem; }
+  .neo-feature-list li::before { content: "✦"; margin-right: 7px; font-size: 0.75em; color: var(--blue-soft); }
+  .neo-showcase-video {
+    width: 100%; aspect-ratio: 16/9;
+    border-radius: 12px; overflow: hidden;
+    margin: 16px 0; border: 2px solid var(--border); background: #000;
+  }
+  .neo-showcase-video iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  /* ── gif grid (표정: 4열 고정) ── */
+  .neo-gif-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 10px 0 16px 0;
+  }
+
+  /* ── gif grid (애니메이션: 1열 꽉 채움) ── */
+  .neo-gif-grid.fill {
+    grid-template-columns: 1fr;
+  }
+  .neo-gif-grid.fill .neo-gif-box {
+    aspect-ratio: unset;
+    height: auto;
+  }
+  .neo-gif-grid.fill .neo-gif-box img {
+    width: 100%;
+    height: auto;
+    object-fit: unset;
+  }
+
+  .neo-gif-box {
+    background: var(--panel); border: 1.5px solid var(--border);
+    border-radius: 10px; aspect-ratio: 1;
+    overflow: hidden; cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+  .neo-gif-box:hover { transform: scale(1.05); box-shadow: 0 4px 14px var(--shadow); border-color: var(--blue-accent); }
+  .neo-gif-box:active { transform: scale(0.97); }
+  .neo-gif-box img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .neo-gif-box .gif-fallback {
+    position: absolute; inset: 0;
+    display: none; align-items: center; justify-content: center;
+    color: var(--blue-soft); font-size: 0.72rem; font-weight: 600;
+    text-align: center; padding: 4px;
+  }
+  .neo-gif-box.failed img { display: none; }
+  .neo-gif-box.failed .gif-fallback { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- Email popup -->
+<div class="email-popup" id="emailPopup" onclick="closeEmailPopup(event)">
+  <div class="email-popup-box">
+    <div class="email-popup-icon">✉️</div>
+    <div class="email-popup-label" data-i18n="email-label">이메일 주소</div>
+    <div class="email-popup-addr">qhqh030302@naver.com</div>
+    <button class="email-popup-close" onclick="document.getElementById('emailPopup').classList.remove('open')" data-i18n="email-close">닫기</button>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <div class="lightbox-close" onclick="closeLightbox()">✕</div>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+</div>
+
+<!-- NEONOVA modal -->
+<div class="neonova-overlay" id="neonovaOverlay" onclick="closeNeonova(event)">
+  <div class="neonova-window" id="neonovaWindow">
+    <div class="neonova-handle"></div>
+    <div class="neonova-chrome">
+      <div class="neonova-dots">
+        <div class="neonova-dot red" onclick="closeNeonovaWindow()" title="닫기"></div>
+        <div class="neonova-dot yellow"></div>
+        <div class="neonova-dot green"></div>
+      </div>
+      <div class="neonova-addr">@Cooing</div>
+    </div>
+    <div class="neonova-body">
+      <div class="neo-header">
+        <h1>NEONOVA Live2D</h1>
+        <p id="neoHeaderSub"></p>
+      </div>
+      <div class="neo-inner">
+        <div class="neo-detail-header">
+          <h2 id="neoModalTitle"></h2>
+          <div class="neo-tag-list" id="neoModalTags"></div>
+        </div>
+        <div class="neo-feature-list" id="neoModalFeatures"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="outer-frame-wrap">
+  <div class="page-header">
+    <div class="page-bookmark"></div>
+    <h1 style="font-size:clamp(20px,5vw,26px);font-weight:800;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 10px rgba(60,80,160,.22);line-height:1.1;">artist page</h1>
+    <div style="display:inline-flex;align-items:center;gap:8px;margin-top:5px;">
+      <div style="position:relative;display:inline-block;">
+        <div style="position:absolute;left:-9px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-right:10px solid #5a7ec0;"></div>
+        <span style="background:#5a7ec0;color:#fff;border-radius:99px;padding:5px 18px;font-size:14px;font-weight:800;letter-spacing:0.2px;display:inline-block;">cooing</span>
+      </div>
+      <span style="background:#fff;color:#5a7ec0;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:800;letter-spacing:0.5px;" data-i18n="badge2">✿ 커미션</span>
+    </div>
+  </div>
+
+  <div class="lang-bar">
+    <button class="lang-btn active" onclick="setLang('ko')">한국어</button>
+    <button class="lang-btn" onclick="setLang('en')">ENG</button>
+    <button class="lang-btn" onclick="setLang('ja')">日本語</button>
+  </div>
+
+  <div class="outer-frame">
+    <div class="browser">
+      <div class="tabs-bar">
+        <div class="tab active" data-tab="home"><span>🗂</span><span data-i18n="tab1">home</span></div>
+        <div class="tab" data-tab="gallery"><span>✏️</span><span data-i18n="tab2">gallery</span></div>
+        <div class="tab" data-tab="schedule"><span>📅</span><span data-i18n="tab3">schedule</span></div>
+        <div class="tab" data-tab="notice"><span>📄</span><span data-i18n="tab4">notice</span></div>
+      </div>
+
+      <div class="addr-bar">
+        <div class="nav-btns">
+          <div class="nav-btn hide-mobile">←</div>
+          <div class="nav-btn hide-mobile">→</div>
+          <div class="nav-btn">↻</div>
+          <div class="nav-btn">🏠</div>
+          <div class="nav-btn hide-mobile">☁</div>
+        </div>
+        <input class="addr-input" id="addrInput" value="https://www.cooing.com" readonly>
+      </div>
+
+      <!-- HOME -->
+      <div class="tab-panel active" id="panel-home">
+        <div class="content">
+          <div class="avatar-col">
+            <div class="avatar-frame">
+              <img src="images/profile/profile.png" alt="profile" onerror="this.parentElement.innerHTML='🌸'">
+            </div>
+          </div>
+          <div class="about-col">
+            <div class="about-title" data-i18n="about-title">about me</div>
+            <div class="about-body" data-i18n="about-body">Loading...<br></div>
+            <div class="about-tags" data-i18n="about-tags">Live2D <span>|</span> 일러스트레이터 <span>|</span> VR</div>
+            <a href="https://artmug.kr/index.php?channel=view&uid=53653" target="_blank" class="btn-commission" data-i18n="btn-comm">✎ 커미션 문의</a>
+          </div>
+          <div class="side-col">
+            <div class="thoughts-box">
+              <div class="thoughts-header" data-i18n="th-header">🗨️ &nbsp; 커미션 링크</div>
+              <div class="thoughts-list">
+                <a href="https://artmug.kr/index.php?channel=view&uid=53653" target="_blank" class="thought-item" data-i18n="th1">Live2D 일러스트</a>
+                <a href="https://artmug.kr/index.php?channel=view&uid=57245" target="_blank" class="thought-item" data-i18n="th2">sd 일러스트</a>
+                <a href="https://artmug.kr/index.php?channel=view&uid=17902" target="_blank" class="thought-item" data-i18n="th3">방송용/커버곡 일러스트</a>
+                <a class="thought-item" data-i18n="th4" onclick="openNeonova()" style="cursor:pointer;">판매용 모델</a>
+              </div>
+            </div>
+            <div class="social-icons-row">
+              <a href="https://x.com/sun_cooing_s2?s=11" target="_blank" class="soc" title="X">
+                <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.261 5.636zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+              <a href="https://youtube.com/@cooing03?si=-eYPgkn4KTv1pVeP" target="_blank" class="soc" title="YouTube">
+                <svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+              </a>
+              <a href="https://www.pixiv.net/users/42307067" target="_blank" class="soc" title="Pixiv">
+                <svg viewBox="0 0 32 32" width="32" height="32">
+                  <rect width="32" height="32" rx="7" fill="var(--blue-soft)"/>
+                  <text x="16" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white">p</text>
+                </svg>
+              </a>
+              <button class="soc" title="Email" onclick="openEmailPopup()">
+                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zm0 2v.511l-8 6.223-8-6.222V6h16zM4 18V9.044l7.386 5.745a.994.994 0 0 0 1.228 0L20 9.044 20.002 18H4z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GALLERY -->
+      <div class="tab-panel" id="panel-gallery">
+        <div class="gallery-panel">
+          <div class="panel-heading" data-i18n="gallery-heading">✏️ gallery</div>
+          <div id="galleryGrid" class="gallery-grid"></div>
+          <div id="galleryEmpty" class="gallery-empty" style="display:none;">
+            <div style="font-size:36px;">🖼️</div>
+            <div data-i18n="gallery-empty">images 폴더에 이미지를 넣으면 여기에 표시됩니다.</div>
+            <div style="font-size:11px;margin-top:4px;color:var(--text-light);">images/gallery/image1.png …</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCHEDULE -->
+      <div class="tab-panel" id="panel-schedule">
+        <div class="schedule-panel">
+          <div class="panel-heading" data-i18n="schedule-heading">📅 schedule</div>
+          <div class="months-grid" id="monthsGrid"></div>
+        </div>
+      </div>
+
+      <!-- NOTICE -->
+      <div class="tab-panel" id="panel-notice">
+        <div class="notice-panel">
+          <div class="panel-heading" data-i18n="notice-heading">📄 notice</div>
+          <div class="notice-list" id="noticeList"></div>
+        </div>
+      </div>
+
+      <div class="browser-footer">website by: Cooing ✦</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentLang = 'ko';
+let contentData = { i18n: {}, schedule: [], notices: [], images: [] };
+
+function tr() { return contentData.i18n[currentLang] || contentData.i18n['ko'] || {}; }
+
+async function loadContent() {
+  try {
+    const res = await fetch('content.json');
+    if (res.ok) contentData = await res.json();
+  } catch(e) {}
+  applyLang(); renderSchedule(); renderNotices(); renderGallery();
+}
+
+const tabEls = document.querySelectorAll('.tab');
+const addrMap = {
+  home: 'https://www.cooing.com',
+  gallery: 'https://www.cooing.com/gallery',
+  schedule: 'https://www.cooing.com/schedule',
+  notice: 'https://www.cooing.com/notice',
+};
+tabEls.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const t = tab.dataset.tab;
+    tabEls.forEach(x => x.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + t).classList.add('active');
+    document.getElementById('addrInput').value = addrMap[t] || 'https://www.cooing.com';
+  });
+});
+
+function renderGallery() {
+  const grid = document.getElementById('galleryGrid');
+  const empty = document.getElementById('galleryEmpty');
+  grid.innerHTML = '';
+  const imgs = contentData.images || [];
+  if (!imgs.length) { empty.style.display = 'flex'; return; }
+  empty.style.display = 'none';
+  imgs.forEach(src => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    const img = document.createElement('img');
+    img.src = src; img.alt = ''; img.loading = 'lazy';
+    img.onerror = () => {
+      item.innerHTML = `<div class="gallery-placeholder"><div class="icon">🖼️</div><div>${src}</div></div>`;
+    };
+    item.onclick = () => openLightbox(src);
+    item.appendChild(img);
+    grid.appendChild(item);
+  });
+}
+
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
+function renderSchedule() {
+  const grid = document.getElementById('monthsGrid');
+  grid.innerHTML = '';
+  const tx = tr();
+  for (let i = 1; i <= 12; i++) {
+    const entry = (contentData.schedule || []).find(s => s.month === i) || { status: 'close', note: '' };
+    const isOpen = entry.status === 'open';
+    const card = document.createElement('div');
+    card.className = 'month-card';
+    card.innerHTML = `
+      <div class="month-header">
+        <span>${(tx.months||[])[i-1]||i}</span>
+        <span class="month-status ${isOpen?'open':'close'}">${isOpen?(tx.open||'OPEN'):(tx.close||'CLOSE')}</span>
+      </div>
+      <div class="month-body">${entry.note||''}</div>
+    `;
+    grid.appendChild(card);
+  }
+}
+
+function renderNotices() {
+  const list = document.getElementById('noticeList');
+  list.innerHTML = '';
+  (contentData.notices || []).forEach(n => {
+    const title = typeof n.title==='object' ? (n.title[currentLang]||n.title.ko||'') : n.title;
+    const body  = typeof n.body ==='object' ? (n.body[currentLang] ||n.body.ko ||'') : n.body;
+    const item = document.createElement('div');
+    item.className = 'notice-item';
+    item.innerHTML = `
+      <div class="notice-item-header">
+        <div class="notice-title">${title}</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <div class="notice-date">${n.date||''}</div>
+          <div class="notice-arrow">▾</div>
+        </div>
+      </div>
+      <div class="notice-body">${body}</div>
+    `;
+    item.addEventListener('click', () => {
+      item.querySelector('.notice-body').classList.toggle('open');
+      item.classList.toggle('expanded');
+    });
+    list.appendChild(item);
+  });
+}
+
+function applyLang() {
+  const tx = tr();
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (tx[key] !== undefined) el.innerHTML = tx[key];
+  });
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+  applyLang(); renderSchedule(); renderNotices();
+}
+
+function openEmailPopup() { document.getElementById('emailPopup').classList.add('open'); }
+function closeEmailPopup(e) {
+  if (e.target === document.getElementById('emailPopup'))
+    document.getElementById('emailPopup').classList.remove('open');
+}
+
+/* NEONOVA */
+const neoSamples = [{
+  id: 1,
+  title: "Kuroneko 버츄얼 모델",
+  tags: ["1명 선착 판매", "VBridger 완벽 지원", "iPhone 필수"],
+  videoText: "B7JMb4uTo_A",
+  features: {
+    "판매 방식": ["1명에게 선착 판매"],
+    "필수 환경": ["아이폰 (iPhone)", "브이튜브 스튜디오 (VTube Studio)", "브이브릿저 (VBridger)"],
+    "포함된 파일": ["모델의 Moc3", "단축키 세팅 파일", "브이브릿저 세팅 파일", "쇼케이스 영상"],
+    "포함된 표정": ["하트, 홍조, 눈물, 정색, 빠직, 땀, 돈이 좋아, 또잉, 피식, 반짝, 눈물, 질색 등 총 13종", "gif-images:images/gif/face1.gif,images/gif/face2.gif,images/gif/face3.gif,images/gif/face4.gif,images/gif/face5.gif,images/gif/face6.gif,images/gif/face7.gif,images/gif/face8.gif,images/gif/face9.gif,images/gif/face10.gif,images/gif/face11.gif,images/gif/face12.gif,images/gif/face13.gif"],
+    "포함된 애니메이션": ["잠자는 대기 애니메이션 (1종)", "gif-images:images/gif/anim1.gif"],
+    "구매자 권한 및 주의사항": [
+      "모델의 권한양도 및 재판매는 판매자에게 문의한 후 가능합니다.",
+      "기업이나 그룹같은 경우 해당 팀 내에 양도 가능합니다.",
+      "구매자는 해당 작업물로 유튜브, 라이브스트리밍 활동만 가능합니다.",
+      "의상 헤어 등은 다른 작업자에게 진행을 맡길 수 없습니다.",
+      "해당 작업물은 작업자의 포트폴리오로 기재됩니다.",
+      "해당 작업물에 허가 없는 리터치는 금합니다."
+    ]
+  }
+}];
+
+function buildFeaturesHtml(sample) {
+  let html = '';
+  for (const [cat, items] of Object.entries(sample.features)) {
+    html += `<h3>${cat}</h3><ul>`;
+    items.forEach(item => {
+      if (item === "쇼케이스 영상") {
+        html += `</ul><div class="neo-showcase-video"><iframe src="https://www.youtube.com/embed/${sample.videoText}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div><ul>`;
+      } else if (item.startsWith("gif-images:")) {
+        const srcs = item.slice("gif-images:".length).split(",");
+        const isFill = cat.includes('애니메이션');
+        html += `</ul><div class="neo-gif-grid${isFill ? ' fill' : ''}">`;
+        srcs.forEach((src, i) => {
+          const label = `GIF ${String(i+1).padStart(2,'0')}`;
+          html += `<div class="neo-gif-box" onclick="openLightbox('${src.trim()}')">
+            <img src="${src.trim()}" alt="${label}"
+              onerror="this.closest('.neo-gif-box').classList.add('failed')">
+            <div class="gif-fallback">${label}</div>
+          </div>`;
+        });
+        html += `</div><ul>`;
+      } else {
+        html += `<li>${item}</li>`;
+      }
+    });
+    html += `</ul>`;
+  }
+  return html.replace(/<ul>\s*<\/ul>/g, '');
+}
+
+function openNeonova() {
+  const s = neoSamples[0];
+  document.getElementById('neoHeaderSub').textContent = s.title;
+  document.getElementById('neoModalTitle').textContent = s.title;
+  document.getElementById('neoModalTags').innerHTML = s.tags.map(t => `<span class="neo-tag">${t}</span>`).join('');
+  document.getElementById('neoModalFeatures').innerHTML = buildFeaturesHtml(s);
+  document.getElementById('neonovaOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeNeonova(e) {
+  if (e.target === document.getElementById('neonovaOverlay')) closeNeonovaWindow();
+}
+function closeNeonovaWindow() {
+  document.getElementById('neonovaOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('neonovaOverlay').classList.contains('open'))
+    closeNeonovaWindow();
+});
+
+(function() {
+  let startY = 0;
+  const win = document.getElementById('neonovaWindow');
+  win.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  win.addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - startY > 80) closeNeonovaWindow();
+  }, { passive: true });
+})();
+
+loadContent();
+</script>
+</body>
+</html>

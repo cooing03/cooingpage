@@ -1,0 +1,100 @@
+{
+  "i18n": {
+    "ko": {
+      "badge2": "✿ 커미션",
+      "tab1": "home", "tab2": "gallery", "tab3": "schedule", "tab4": "notice",
+      "about-title": "about me",
+      "about-body": "캘린더에 명시된 일정은 버츄얼 기준입니다.<br>일러스트 커미션은 신청전 문의 부탁드립니다.<br>구매 문의는 DM or 아트머그로 부탁드립니다.<br>꼭 링크 안에 있는 내용을 숙지후 문의부탁드립니다!",
+      "about-tags": "Live2D <span>|</span> 일러스트레이터 <span>|</span> VR",
+      "btn-comm": "✎ 커미션 문의",
+      "th-header": "🗨️   커미션 링크",
+      "th1": "Live2D 일러스트", "th2": "sd 일러스트", "th3": "방송용/커버곡 일러스트", "th4": "판매용 모델",
+      "gallery-heading": "✏️ gallery",
+      "gallery-empty": "images 폴더에 이미지를 넣으면 여기에 표시됩니다.",
+      "schedule-heading": "📅 schedule",
+      "notice-heading": "📄 notice",
+      "email-label": "이메일 주소",
+      "email-close": "닫기",
+      "months": ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+      "open": "OPEN", "close": "CLOSE"
+    },
+    "en": {
+      "badge2": "✿ commission",
+      "tab1": "home", "tab2": "gallery", "tab3": "schedule", "tab4": "notice",
+      "about-title": "about me",
+      "about-body": "The schedule specified in the calendar is based on a virtual basis.<br>Please contact us before applying for the illustration commission.<br>For purchase inquiries, please DM or art mug.<br>Please be sure to understand the contents in the link before contacting us!",
+      "about-tags": "Live2D <span>|</span> illustrator <span>|</span> VR",
+      "btn-comm": "✎ commission me",
+      "th-header": "🗨️   commission links",
+      "th1": "Live2D illustration", "th2": "SD illustration", "th3": "streaming/cover song illustration", "th4": "model for sale",
+      "gallery-heading": "✏️ gallery",
+      "gallery-empty": "Add images to the images/ folder to show them here.",
+      "schedule-heading": "📅 schedule",
+      "notice-heading": "📄 notice",
+      "email-label": "Email address",
+      "email-close": "Close",
+      "months": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+      "open": "OPEN", "close": "CLOSE"
+    },
+    "ja": {
+      "badge2": "✿ コミッション",
+      "tab1": "ホーム", "tab2": "ギャラリー", "tab3": "スケジュール", "tab4": "お知らせ",
+      "about-title": "about me",
+      "about-body": "カレンダーに記載されたスケジュールはバーチャル基準です。<br>イラストの委託は、応募前にお問い合わせください。<br>購入に関するお問い合わせはDM or アートマグでお願いします。<br>必ずリンク内の内容をご確認の上、お問い合わせください！",
+      "about-tags": "Live2D <span>|</span> イラストレーター <span>|</span> VR",
+      "btn-comm": "✎ コミッション依頼",
+      "th-header": "🗨️   コミッションリンク",
+      "th1": "Live2Dイラスト", "th2": "SDイラスト", "th3": "配信用/カバー曲イラスト", "th4": "販売用モデル",
+      "gallery-heading": "✏️ ギャラリー",
+      "gallery-empty": "images フォルダに画像を入れるとここに表示されます。",
+      "schedule-heading": "📅 スケジュール",
+      "notice-heading": "📄 お知らせ",
+      "email-label": "メールアドレス",
+      "email-close": "閉じる",
+      "months": ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"],
+      "open": "OPEN", "close": "CLOSE"
+    }
+  },
+  "schedule": [
+    { "month": 1,  "status": "close", "note": "작업 완료" },
+    { "month": 2,  "status": "close", "note": "작업 완료" },
+    { "month": 3,  "status": "close", "note": "작업 완료" },
+    { "month": 4,  "status": "close", "note": "작업 완료" },
+    { "month": 5,  "status": "close", "note": "작업 완료" },
+    { "month": 6,  "status": "close", "note": "작업 완료" },
+    { "month": 7,  "status": "close", "note": "작업 완료" },
+    { "month": 8,  "status": "close", "note": "작업 완료" },
+    { "month": 9,  "status": "open",  "note": "작업 중" },
+    { "month": 10, "status": "open",  "note": "" },
+    { "month": 11, "status": "open",  "note": "" },
+    { "month": 12, "status": "open",  "note": "" }
+  ],
+  "notices": [
+    {
+      "title": { "ko": "커미션 오픈 안내", "en": "Commission Open Notice", "ja": "コミッション受付のお知らせ" },
+      "date": "2026-07-01",
+      "body": {
+        "ko": "일러스트 커미션이 오픈되었습니다. \n자세한 내용은 artmug 페이지를 확인해 주세요.",
+        "en": "Illustration commissions are now open. Please check the artmug page for details.",
+        "ja": "イラストコミッションが開始されました。詳細はartmugページをご確認ください。"
+      }
+    },
+    {
+      "title": { "ko": "작업 규정 안내", "en": "Terms of Service", "ja": "利用規約のご案内" },
+      "date": "2026-07-01",
+      "body": {
+        "ko": "모든 작업물의 저작권은 Cooing에게 있습니다.\n비공개 요청시 추가금이 있습니다.\n작업 시작 후 단순 변심에 의한 환불은 불가합니다.",
+        "en": "All artwork copyright belongs to Cooing.\nThere is an additional fee for non-disclosure requests.\nNo refunds after work has started.",
+        "ja": "すべての作品の著作権はCooingに帰属します。\n非公開依頼の場合、の追加料金が発生します。\n作業開始後の返金は不可です。"
+      }
+    }
+  ],
+  "images": [
+    "images/gallery/image1.png",
+    "images/gallery/image2.png",
+    "images/gallery/image3.png",
+    "images/gallery/image4.png",
+    "images/gallery/image5.png",
+    "images/gallery/image6.png"
+  ]
+}
